@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billion Dollar Pitch Scorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .input-section {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .results-section {
+            padding: 40px;
+            background: white;
+            border-left: 1px solid #eee;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .analyze-status {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .status-indicator {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .status-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .status-progress::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+            animation: progress 1.5s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .status-analyzing {
+            background: linear-gradient(135deg, #feca57, #ff6b6b);
+        }
+
+        .status-ready {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: conic-gradient(from 0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+            border-radius: 50%;
+        }
+
+        .score-circle span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .score-description {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .breakdown {
+            margin-top: 30px;
+        }
+
+        .breakdown h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .criteria-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ddd;
+        }
+
+        .criteria-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .criteria-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .criteria-score {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .criteria-feedback {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .feedback-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 12px;
+            border: 1px solid #e1f5fe;
+        }
+
+        .feedback-section h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
+        .feedback-list {
+            list-style: none;
+        }
+
+        .feedback-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+
+        .feedback-list li::before {
+            content: '💡';
+            position: absolute;
+            left: 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ddd;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-section {
+                border-left: none;
+                border-top: 1px solid #eee;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .input-section, .results-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Billion Dollar Pitch Scorer</h1>
+            <p>Analyze your startup idea and get a comprehensive score based on key success factors</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="pitch">Describe Your Startup Idea:</label>
+                    <textarea 
+                        id="pitch" 
+                        placeholder="Tell us about your startup idea... What problem does it solve? Who is your target market? How will you make money? What makes it unique?"
+                    ></textarea>
+                </div>
+                <div class="analyze-status">
+                    <div id="status-indicator" class="status-indicator">
+                        <span id="status-text">Start typing to see your score...</span>
+                        <div id="status-progress" class="status-progress hidden"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <div id="initial-message">
+                    <div style="text-align: center; padding: 60px 20px; color: #666;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">💭</div>
+                        <h3>Ready to Score Your Idea?</h3>
+                        <p>Enter your startup pitch on the left and click "Analyze" to get your billion-dollar potential score!</p>
+                    </div>
+                </div>
+                
+                <div id="loading" class="loading hidden">
+                    Analyzing your pitch...
+                </div>
+                
+                <div id="results" class="hidden">
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <span id="total-score">0</span>
+                        </div>
+                        <div class="score-label">Billion Dollar Potential</div>
+                        <div class="score-description" id="score-description"></div>
+                    </div>
+                    
+                    <div class="breakdown">
+                        <h3>📊 Detailed Breakdown</h3>
+                        <div id="criteria-breakdown"></div>
+                    </div>
+                    
+                    <div class="feedback-section">
+                        <h3>💡 Key Recommendations</h3>
+                        <ul class="feedback-list" id="feedback-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-update variables
+        let analysisTimeout;
+        let isAnalyzing = false;
+        const MIN_CHARS_FOR_ANALYSIS = 30;
+        const ANALYSIS_DELAY = 1000; // 1 second delay after typing stops
+
+        // Scoring criteria and their weights
+        const CRITERIA = {
+            marketSize: {
+                name: "Market Size Potential",
+                weight: 0.2,
+                keywords: ['billion', 'market', 'global', 'worldwide', 'industry', 'large', 'huge', 'massive', 'everyone', 'all', 'universal']
+            },
+            problemUniqueness: {
+                name: "Problem Uniqueness",
+                weight: 0.18,
+                keywords: ['unique', 'first', 'never', 'revolutionary', 'breakthrough', 'innovative', 'disruptive', 'game-changer', 'novel', 'unprecedented']
+            },
+            scalability: {
+                name: "Scalability",
+                weight: 0.17,
+                keywords: ['scale', 'grow', 'expand', 'global', 'automated', 'digital', 'platform', 'network', 'viral', 'exponential']
+            },
+            competition: {
+                name: "Competition Analysis",
+                weight: 0.15,
+                keywords: ['competitor', 'competition', 'alternative', 'existing', 'similar', 'different', 'better', 'advantage', 'moat', 'barrier']
+            },
+            technicalFeasibility: {
+                name: "Technical Feasibility",
+                weight: 0.15,
+                keywords: ['technology', 'technical', 'feasible', 'possible', 'build', 'develop', 'create', 'implement', 'AI', 'software', 'app']
+            },
+            revenueModel: {
+                name: "Revenue Model Clarity",
+                weight: 0.15,
+                keywords: ['revenue', 'money', 'profit', 'income', 'pay', 'subscription', 'pricing', 'monetize', 'business model', 'earn']
+            }
+        };
+
+        function getScoreColor(score) {
+            if (score >= 80) return '#4CAF50';
+            if (score >= 60) return '#FF9800';
+            if (score >= 40) return '#FFC107';
+            return '#F44336';
+        }
+
+        function getScoreDescription(score) {
+            if (score >= 80) return 'Exceptional potential! 🌟';
+            if (score >= 60) return 'Strong potential with room for improvement 💪';
+            if (score >= 40) return 'Moderate potential, needs refinement ⚡';
+            return 'Early stage, significant development needed 🔧';
+        }
+
+        function analyzeCriteria(text) {
+            const results = {};
+            const lowerText = text.toLowerCase();
+            
+            // Basic text analysis metrics
+            const wordCount = text.split(/\s+/).length;
+            const sentenceCount = text.split(/[.!?]+/).length;
+            const avgWordsPerSentence = wordCount / sentenceCount;
+            
+            for (const [key, criteria] of Object.entries(CRITERIA)) {
+                let score = 0;
+                let feedback = [];
+                
+                // Keyword matching
+                const keywordMatches = criteria.keywords.filter(keyword => 
+                    lowerText.includes(keyword)
+                ).length;
+                
+                // Base score from keyword density
+                const keywordScore = Math.min((keywordMatches / criteria.keywords.length) * 100, 70);
+                
+                // Specific scoring logic for each criteria
+                switch(key) {
+                    case 'marketSize':
+                        if (lowerText.includes('billion') || lowerText.includes('trillion')) score += 20;
+                        if (lowerText.includes('million')) score += 10;
+                        if (lowerText.includes('global') || lowerText.includes('worldwide')) score += 15;
+                        if (lowerText.includes('everyone') || lowerText.includes('all people')) score += 10;
+                        
+                        score += keywordScore;
+                        
+                        if (score < 30) feedback.push("Consider quantifying your market size with specific numbers");
+                        if (score < 50) feedback.push("Explain how large your target market is and growth potential");
+                        if (!lowerText.includes('market')) feedback.push("Describe your target market more clearly");
+                        break;
+                        
+                    case 'problemUniqueness':
+                        if (lowerText.includes('no one') || lowerText.includes('first time')) score += 20;
+                        if (lowerText.includes('revolutionary') || lowerText.includes('breakthrough')) score += 15;
+                        if (lowerText.includes('different') || lowerText.includes('unique')) score += 10;
+                        
+                        score += keywordScore;
+                        
+                        if (score < 40) feedback.push("Explain what makes your solution unique compared to existing options");
+                        if (score < 60) feedback.push("Highlight your key differentiators and innovative aspects");
+                        break;
+                        
+                    case 'scalability':
+                        if (lowerText.includes('platform') || lowerText.includes('network')) score += 15;
+                        if (lowerText.includes('automated') || lowerText.includes('self-service')) score += 15;
+                        if (lowerText.includes('viral') || lowerText.includes('exponential')) score += 10;
+                        if (lowerText.includes('digital') || lowerText.includes('software')) score += 10;
+                        
+                        score += keywordScore;
+                        
+                        if (score < 40) feedback.push("Explain how your business can scale without proportional cost increases");
+                        if (score < 60) feedback.push("Describe your growth strategy and scalability mechanisms");
+                        break;
+                        
+                    case 'competition':
+                        if (lowerText.includes('competitor') || lowerText.includes('alternative')) score += 10;
+                        if (lowerText.includes('better') || lowerText.includes('advantage')) score += 15;
+                        if (lowerText.includes('moat') || lowerText.includes('barrier')) score += 20;
+                        
+                        score += keywordScore;
+                        
+                        if (score < 30) feedback.push("Analyze your competition and explain your competitive advantages");
+                        if (score < 50) feedback.push("Describe what makes you better than existing solutions");
+                        break;
+                        
+                    case 'technicalFeasibility':
+                        if (lowerText.includes('feasible') || lowerText.includes('possible')) score += 15;
+                        if (lowerText.includes('technology') || lowerText.includes('technical')) score += 10;
+                        if (lowerText.includes('build') || lowerText.includes('develop')) score += 10;
+                        if (lowerText.includes('AI') || lowerText.includes('machine learning')) score += 15;
+                        
+                        score += keywordScore;
+                        
+                        if (score < 40) feedback.push("Explain the technical approach and feasibility of your solution");
+                        if (score < 60) feedback.push("Describe the technology stack and development timeline");
+                        break;
+                        
+                    case 'revenueModel':
+                        if (lowerText.includes('subscription') || lowerText.includes('recurring')) score += 20;
+                        if (lowerText.includes('revenue') || lowerText.includes('monetize')) score += 15;
+                        if (lowerText.includes('pricing') || lowerText.includes('pay')) score += 10;
+                        if (lowerText.includes('profit') || lowerText.includes('margin')) score += 10;
+                        
+                        score += keywordScore;
+                        
+                        if (score < 30) feedback.push("Clearly define how you will make money");
+                        if (score < 50) feedback.push("Explain your pricing strategy and revenue streams");
+                        break;
+                }
+                
+                // Cap the score at 100 and ensure minimum of 5
+                score = Math.max(5, Math.min(100, score));
+                
+                results[key] = {
+                    score: Math.round(score),
+                    feedback: feedback,
+                    name: criteria.name
+                };
+            }
+            
+            return results;
+        }
+
+        function generateOverallFeedback(criteriaResults, overallScore) {
+            const feedback = [];
+            
+            // Find strongest and weakest areas
+            const scores = Object.values(criteriaResults).map(r => r.score);
+            const maxScore = Math.max(...scores);
+            const minScore = Math.min(...scores);
+            
+            const strongestArea = Object.entries(criteriaResults)
+                .find(([_, result]) => result.score === maxScore)[1].name;
+            const weakestArea = Object.entries(criteriaResults)
+                .find(([_, result]) => result.score === minScore)[1].name;
+            
+            if (overallScore >= 70) {
+                feedback.push(`Great job! Your strongest area is ${strongestArea}. Focus on maintaining this advantage.`);
+            } else {
+                feedback.push(`Your strongest area is ${strongestArea}. Build on this foundation.`);
+            }
+            
+            feedback.push(`Your biggest opportunity for improvement is ${weakestArea}. Addressing this could significantly boost your score.`);
+            
+            // Specific recommendations based on score ranges
+            if (overallScore < 50) {
+                feedback.push("Consider conducting more market research and refining your value proposition.");
+                feedback.push("Think about what makes your solution 10x better than current alternatives.");
+            }
+            
+            if (overallScore >= 50 && overallScore < 70) {
+                feedback.push("You have a solid foundation. Focus on strengthening your competitive moat.");
+                feedback.push("Consider how you can scale your solution to reach a larger market.");
+            }
+            
+            if (overallScore >= 70) {
+                feedback.push("You're on the right track! Consider seeking feedback from potential customers.");
+                feedback.push("Think about building an MVP to validate your assumptions.");
+            }
+            
+            return feedback;
+        }
+
+        function displayResults(criteriaResults, overallScore) {
+            // Update overall score
+            document.getElementById('total-score').textContent = overallScore;
+            document.getElementById('score-description').textContent = getScoreDescription(overallScore);
+            
+            // Update score circle color
+            const scoreCircle = document.querySelector('.score-circle');
+            scoreCircle.style.background = getScoreColor(overallScore);
+            
+            // Display criteria breakdown
+            const breakdown = document.getElementById('criteria-breakdown');
+            breakdown.innerHTML = '';
+            
+            for (const [key, result] of Object.entries(criteriaResults)) {
+                const criteriaDiv = document.createElement('div');
+                criteriaDiv.className = 'criteria-item';
+                criteriaDiv.style.borderLeftColor = getScoreColor(result.score);
+                
+                criteriaDiv.innerHTML = `
+                    <div class="criteria-header">
+                        <span class="criteria-name">${result.name}</span>
+                        <span class="criteria-score" style="background-color: ${getScoreColor(result.score)}">${result.score}/100</span>
+                    </div>
+                    <div class="criteria-feedback">
+                        ${result.feedback.length > 0 ? result.feedback.join(' ') : 'Good coverage in this area!'}
+                    </div>
+                `;
+                
+                breakdown.appendChild(criteriaDiv);
+            }
+            
+            // Display overall feedback
+            const feedbackList = document.getElementById('feedback-list');
+            const overallFeedback = generateOverallFeedback(criteriaResults, overallScore);
+            feedbackList.innerHTML = overallFeedback.map(feedback => `<li>${feedback}</li>`).join('');
+        }
+
+        function updateStatus(message, isAnalyzing = false) {
+            const statusText = document.getElementById('status-text');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusProgress = document.getElementById('status-progress');
+            
+            statusText.textContent = message;
+            
+            // Remove all status classes
+            statusIndicator.classList.remove('status-analyzing', 'status-ready');
+            
+            if (isAnalyzing) {
+                statusIndicator.classList.add('status-analyzing');
+                statusProgress.classList.remove('hidden');
+            } else {
+                statusIndicator.classList.add('status-ready');
+                statusProgress.classList.add('hidden');
+            }
+        }
+
+        function analyzePitch() {
+            const pitchText = document.getElementById('pitch').value.trim();
+            
+            if (!pitchText) {
+                // Reset to initial state
+                document.getElementById('results').classList.add('hidden');
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('initial-message').classList.remove('hidden');
+                updateStatus('Start typing to see your score...');
+                return;
+            }
+            
+            if (pitchText.length < MIN_CHARS_FOR_ANALYSIS) {
+                updateStatus(`Keep writing... (${pitchText.length}/${MIN_CHARS_FOR_ANALYSIS} chars minimum)`);
+                return;
+            }
+            
+            // Show analyzing state
+            isAnalyzing = true;
+            updateStatus('Analyzing your pitch...', true);
+            document.getElementById('initial-message').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            
+            // Simulate processing time for better UX
+            setTimeout(() => {
+                // Analyze the pitch
+                const criteriaResults = analyzeCriteria(pitchText);
+                
+                // Calculate weighted overall score
+                let overallScore = 0;
+                for (const [key, result] of Object.entries(criteriaResults)) {
+                    overallScore += result.score * CRITERIA[key].weight;
+                }
+                overallScore = Math.round(overallScore);
+                
+                // Display results
+                displayResults(criteriaResults, overallScore);
+                
+                // Show results
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+                
+                // Update status
+                isAnalyzing = false;
+                updateStatus(`Score: ${overallScore}/100 - ${getScoreDescription(overallScore)}`);
+            }, 800);
+        }
+
+        function scheduleAnalysis() {
+            // Clear any existing timeout
+            if (analysisTimeout) {
+                clearTimeout(analysisTimeout);
+            }
+            
+            // Don't schedule if already analyzing
+            if (isAnalyzing) {
+                return;
+            }
+            
+            // Schedule analysis after delay
+            analysisTimeout = setTimeout(() => {
+                analyzePitch();
+            }, ANALYSIS_DELAY);
+        }
+
+        // Auto-analyze as user types
+        document.getElementById('pitch').addEventListener('input', function(e) {
+            scheduleAnalysis();
+        });
+
+        // Initial status
+        updateStatus('Start typing to see your score...');
+    </script>
+</body>
+</html> 
